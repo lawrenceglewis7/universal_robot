@@ -10,6 +10,12 @@
   <!-- ur10 -->
   <xacro:include filename="$(find ur_description)/urdf/ur10.urdf.xacro" />
 
+  <!-- camera movement xacro holder -->
+  <xacro:include filename="$(find industrial_extrinsic_cal)/urdf/calibration_transform_macro.xacro"/>
+
+  <!-- r430 3d camera -->
+  <xacro:include filename="$(find industrial_extrinsic_cal)/urdf/r430_def_macro.xacro"/>
+
   <!-- arm -->
   <xacro:ur10_robot prefix="" joint_limited="true"
     shoulder_pan_lower_limit="${-pi}" shoulder_pan_upper_limit="${pi}"
@@ -20,6 +26,8 @@
     wrist_3_lower_limit="${-pi}" wrist_3_upper_limit="${pi}"
     transmission_hw_interface="$(arg transmission_hw_interface)"
 />
+  
+
 
   <link name="world" />
 
@@ -28,5 +36,27 @@
     <child link = "base_link" />
     <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
   </joint>
+
+  <!-- add target1 to the workcell -->
+  <!--This adds the following mutable joint states, add them to the mutable joint states yaml file and run the node
+      target1_frame_x_joint
+      target1_frame_y_joint
+      target1_frame_z_joint
+      target1_frame_yaw_joint
+      target1_frame_pitch_joint
+      target1_frame_roll_joint
+  -->
+  <link name="target1_frame" /> 
+  <xacro:calibration_definitions child_link="target1_frame" parent_link="world"/>
+
+  <!-- attatch camera via sequence of mutable joints to parent -->
+  <xacro:calibration_definitions child_link="r430_1" parent_link="tool0" />
+
+  <!-- add real sense r430 to the wrist -->
+  <xacro:sensor_r430 prefix="r430_1" parent_link="r430_1">
+        <origin xyz=".1 .1 .1" rpy="0 0 0" />
+  </xacro:sensor_r430>
+
+
 
 </robot>
